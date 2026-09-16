@@ -1,0 +1,51 @@
+name: GardenPilot APK
+on:
+  pull_request:
+    paths:
+      - 'gardenpilot/src/**'
+      - 'gardenpilot/res/**'
+      - 'gardenpilot/tests/**'
+      - 'gardenpilot/AndroidManifest.xml'
+      - 'gardenpilot/build.sh'
+      - '.github/workflows/gardenpilot-apk.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK packages
+        run: '"${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"'
+      - name: Build, test and verify APK
+        run: bash gardenpilot/build.sh
+      - name: Upload APK and verification reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: GardenPilot-APK
+          path: |
+            gardenpilot/dist/
+            gardenpilot/build/test-results.txt
+            gardenpilot/build/signature.txt
+            gardenpilot/build/package.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Save APK to the feature branch
+        env:
+          GP_BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          test "$GP_BRANCH" = "codex/gardenpilot-android"
+          git config user.name "GardenPilot Build"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gardenpilot/dist/GardenPilot.apk gardenpilot/dist/SHA256SUMS.txt gardenpilot/dist/README.md
+          git diff --cached --quiet || git commit -m "build: attach verified GardenPilot APK [skip ci]"
+          git push origin "HEAD:$GP_BRANCH"

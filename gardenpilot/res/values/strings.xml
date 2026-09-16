@@ -1,0 +1,9 @@
+<resources>
+ <string name="accessibility_description">По вашей команде GardenPilot получает снимки окна Gardenscapes, распознаёт поле и выполняет касания и перемещения фишек. Пауза и Стоп останавливают новые действия. Уменьшение громкости тоже ставит бота на паузу. Данные обрабатываются на телефоне. Это помощник для игры, а не средство доступности.</string>
+ <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+  <item name="android:fontFamily">sans</item><item name="android:colorAccent">#65E2B7</item>
+  <item name="android:windowLightStatusBar">false</item><item name="android:windowLightNavigationBar">false</item>
+  <item name="android:statusBarColor">#101A23</item><item name="android:navigationBarColor">#101A23</item>
+  <item name="android:windowBackground">#101A23</item>
+ </style>
+</resources>
